@@ -16,12 +16,10 @@ python3 ./training_madel.py
 ##### To search for a person in a video, run the file check_in_video.py
 ```
 python3 ./check_in_video.py
-
 ```
 ##### To find multiple people in a video, run the file check_in_video_name_people.py
 ```
 python3 ./check_in_video_name_people.py
-
 ```
 ### Additionally
 In the `data` folder, you need to put folders with photos of people for training the model. And for these photos, `.pickle` files will be created in the `pickle_files` folder with the face parameters for later determining the faces in the video.
