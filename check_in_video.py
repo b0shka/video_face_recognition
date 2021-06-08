@@ -3,6 +3,7 @@ import face_recognition
 import pickle
 from cv2 import cv2
 from threading import Thread
+import time
 
 location = None
 encoding = None
@@ -19,8 +20,9 @@ def get_locations():
         try:
             location = face_recognition.face_locations(image, model="hog")[0]
             encoding = face_recognition.face_encodings(image, [location])[0]
-        except IndexError as error:
-            print(f"[ERROR] {error}")
+            time.sleep(1)
+        except IndexError:
+            location = None
         except:
             break
 
@@ -30,15 +32,15 @@ def detect_person_in_video():
     global image
     global status_work
 
-    video = cv2.VideoCapture("video.mp4")
+    video = cv2.VideoCapture("videos/video1.mp4")
     ret, image = video.read()
     files_pickle = os.listdir("pickle_files")
 
     try:
         location = face_recognition.face_locations(image, model="hog")[0]
         encoding = face_recognition.face_encodings(image, [location])[0]
-    except IndexError as error:
-        print(f"[ERROR] {error}")
+    except IndexError:
+        location = None
 
     status_work = 1
     find_face = Thread(target=get_locations)
@@ -49,27 +51,29 @@ def detect_person_in_video():
         try:
             ret, image = video.read()
 
-            for i in files_pickle:
-                data = pickle.loads(open(f"pickle_files/{i}", "rb").read())
-                result = face_recognition.compare_faces(data["encodings"], encoding)
+            if location != None:
+                for i in files_pickle:
+                    data = pickle.loads(open(f"pickle_files/{i}", "rb").read())
+                    result = face_recognition.compare_faces(data["encodings"], encoding)
 
-                if True in result:
-                    name = data["name"]
-                    #print(f"This {name}")
-                    left_top = (location[3], location[0])
-                    right_bottom = (location[1], location[2])
-                    color = [0, 255, 0]
-                    cv2.rectangle(image, left_top, right_bottom, color, 4)
+                    if True in result:
+                        if name != data["name"]:
+                            name = data["name"]
+                            #print(f"This {name}")
+                        left_top = (location[3], location[0])
+                        right_bottom = (location[1], location[2])
+                        color = [0, 255, 0]
+                        cv2.rectangle(image, left_top, right_bottom, color, 4)
 
-                    cv2.putText(
-                        image,
-                        name,
-                        (location[3] + 10, location[2] - 15),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (255, 255, 255),
-                        4
-                    )
+                        cv2.putText(
+                            image,
+                            name,
+                            (location[3] + 10, location[2] + 30),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            1,
+                            (255, 255, 255),
+                            3
+                        )
 
             cv2.imshow("detect_person_in_video is running", image)
 
