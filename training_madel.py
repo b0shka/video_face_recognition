@@ -41,12 +41,12 @@ def traning_modal_img():
 
             # Write to .h5 file
             '''with h5py.File('data.h5', 'a') as file:
-                file.create_dataset(f'{name}', data=face_encodings_user)'''
+                if name not in file.keys():
+                    file.create_dataset(f'{name}', data=face_encodings_user)'''
 
             with open(f"pickle_files/{name}.pickle", "wb") as file:
                 file.write(pickle.dumps(data))
-
-            print(f"[INFO] File {name}.pickle successfully created")
+                print(f"[INFO] File {name}.pickle successfully created")
 
 
 def main():
